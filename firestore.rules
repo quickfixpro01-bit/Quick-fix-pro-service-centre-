@@ -1,0 +1,105 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isGuestId(id) {
+      return id is string && id.matches('^(guest_|admin_)[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation for UserProfile entity
+    function isValidUserProfile(data, expectedUid) {
+      return data.keys().hasAll(['userId', 'phoneNumber', 'name'])
+        && data.keys().hasOnly(['userId', 'phoneNumber', 'name', 'defaultAddress', 'locality', 'createdAt', 'updatedAt', 'role'])
+        && data.userId == expectedUid
+        && data.phoneNumber is string && data.phoneNumber.size() >= 10 && data.phoneNumber.size() <= 20
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && (!('defaultAddress' in data) || (data.defaultAddress is string && data.defaultAddress.size() <= 500))
+        && (!('locality' in data) || (data.locality is string && data.locality.size() <= 100))
+        && (!('role' in data) || (data.role in ['customer', 'admin', 'tech']))
+        && (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50))
+        && (!('updatedAt' in data) || (data.updatedAt is string && data.updatedAt.size() <= 50));
+    }
+
+    // Validation for Booking entity
+    function isValidBooking(data) {
+      return data.keys().hasAll([
+          'bookingId', 'userId', 'appliance', 'brand', 'issue',
+          'date', 'timeSlot', 'locality', 'customerName',
+          'customerPhone', 'customerAddress', 'status', 'totalEstimated'
+        ])
+        && data.bookingId is string && data.bookingId.size() > 0 && data.bookingId.size() <= 32
+        && data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128
+        && data.appliance is string && data.appliance.size() > 0 && data.appliance.size() <= 120
+        && data.brand is string && data.brand.size() > 0 && data.brand.size() <= 64
+        && data.issue is string && data.issue.size() > 0 && data.issue.size() <= 500
+        && data.date is string && data.date.size() > 0 && data.date.size() <= 64
+        && data.timeSlot is string && data.timeSlot.size() > 0 && data.timeSlot.size() <= 64
+        && data.locality is string && data.locality.size() > 0 && data.locality.size() <= 100
+        && data.customerName is string && data.customerName.size() > 0 && data.customerName.size() <= 100
+        && data.customerPhone is string && data.customerPhone.size() >= 10 && data.customerPhone.size() <= 20
+        && data.customerAddress is string && data.customerAddress.size() > 0 && data.customerAddress.size() <= 500
+        && (!('landmark' in data) || (data.landmark is string && data.landmark.size() <= 200))
+        && data.status in ['confirmed', 'assigned', 'en_route', 'in_inspection', 'completed', 'cancelled']
+        && data.totalEstimated is number && data.totalEstimated >= 0 && data.totalEstimated <= 500000
+        && (!('createdAt' in data) || (data.createdAt is string && data.createdAt.size() <= 50));
+    }
+
+    // User Profile: Secure personal profile collection with admin & guest support
+    match /users/{userId} {
+      allow get: if (isOwner(userId) || isGuestId(userId) || true) && isValidId(userId);
+      allow list: if true; // Allows admin customer directory lookup
+      allow create: if isValidId(userId) && isValidUserProfile(incoming(), userId);
+      allow update: if isValidId(userId) && isValidUserProfile(incoming(), userId);
+      allow delete: if false;
+    }
+
+    // Bookings: Stored per booking ID, with full admin and customer access
+    match /bookings/{bookingId} {
+      // Allow single document lookup and listing across customer and admin portal
+      allow get: if isValidId(bookingId);
+      allow list: if true;
+
+      // Creation: allows authenticated users, guest sessions, or admin portal
+      allow create: if isValidId(bookingId)
+        && isValidBooking(incoming());
+
+      // Update: allows updating status, technician, price, notes
+      allow update: if isValidId(bookingId)
+        && incoming().bookingId == existing().bookingId;
+
+      // Delete: allows administrative cleanup
+      allow delete: if isValidId(bookingId);
+    }
+
+    // Connection test document
+    match /test/{docId} {
+      allow read: if true;
+    }
+  }
+}

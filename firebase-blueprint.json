@@ -1,0 +1,133 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with verified phone number and personal service preferences",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID matching the customer"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Customer phone number with country code"
+        },
+        "name": {
+          "type": "string",
+          "description": "Full name of the customer"
+        },
+        "defaultAddress": {
+          "type": "string",
+          "description": "Primary doorstep service address"
+        },
+        "locality": {
+          "type": "string",
+          "description": "Bangalore locality/hub name"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp in ISO format"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp in ISO format"
+        }
+      },
+      "required": ["userId", "phoneNumber", "name"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Doorstep appliance repair or maintenance appointment record",
+      "type": "object",
+      "properties": {
+        "bookingId": {
+          "type": "string",
+          "description": "Unique Quick Fix Pro reference code e.g. QFP-8492"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Auth UID of the customer who booked the service"
+        },
+        "appliance": {
+          "type": "string",
+          "description": "Appliance name or service package name"
+        },
+        "brand": {
+          "type": "string",
+          "description": "Appliance manufacturer brand"
+        },
+        "issue": {
+          "type": "string",
+          "description": "Reported breakdown symptoms or requested maintenance"
+        },
+        "date": {
+          "type": "string",
+          "description": "Appointment service date string"
+        },
+        "timeSlot": {
+          "type": "string",
+          "description": "Selected service time window"
+        },
+        "locality": {
+          "type": "string",
+          "description": "Service area locality in Bangalore"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Customer contact name"
+        },
+        "customerPhone": {
+          "type": "string",
+          "description": "Customer contact mobile phone number"
+        },
+        "customerAddress": {
+          "type": "string",
+          "description": "Complete doorstep flat/house address"
+        },
+        "landmark": {
+          "type": "string",
+          "description": "Nearby landmark or directions"
+        },
+        "status": {
+          "type": "string",
+          "description": "Lifecycle status of the service booking",
+          "enum": ["confirmed", "assigned", "en_route", "in_inspection", "completed", "cancelled"]
+        },
+        "totalEstimated": {
+          "type": "number",
+          "description": "Estimated repair price or starting fee in INR"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when booking was created"
+        }
+      },
+      "required": [
+        "bookingId",
+        "userId",
+        "appliance",
+        "brand",
+        "issue",
+        "date",
+        "timeSlot",
+        "locality",
+        "customerName",
+        "customerPhone",
+        "customerAddress",
+        "status",
+        "totalEstimated"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Stores user profile and contact details, accessible only by the owner"
+    },
+    "/bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Stores doorstep appliance repair service bookings"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Quick Fix Pro - Bangalore Appliance Repair",
+  "description": "Bangalore's trusted doorstep appliance repair service for washing machines, refrigerators, air conditioners, and microwave ovens with 6-month warranty.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
