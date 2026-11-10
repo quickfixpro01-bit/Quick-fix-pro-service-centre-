@@ -261,7 +261,7 @@ export const ContactPage: React.FC = () => {
                         <option value="Refrigerator">Refrigerator (Single / Double / Side-by-Side)</option>
                         <option value="Air Conditioner">Air Conditioner (Split / Window / Inverter)</option>
                         <option value="Microwave Oven">Microwave Oven (Solo / Grill / Convection)</option>
-                        <option value="Annual Maintenance Plan">Annual Maintenance Plan (AMC)</option>
+                        <option value="Multi-Appliance Care Package">Multi-Appliance Care Package</option>
                       </select>
                     </div>
 

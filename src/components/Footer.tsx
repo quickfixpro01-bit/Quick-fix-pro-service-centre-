@@ -159,7 +159,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenBooking, onOpe
               </li>
               <li>
                 <button onClick={() => { onNavigate('services'); }} className="hover:text-blue-400 transition-colors text-left cursor-pointer">
-                  Annual AMC Maintenance Plan
+                  Appliance Care Packages
                 </button>
               </li>
               <li>

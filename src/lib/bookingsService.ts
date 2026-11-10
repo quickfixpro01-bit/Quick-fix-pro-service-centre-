@@ -16,11 +16,47 @@ import { BookingRecord, SAMPLE_TRACKING_BOOKINGS } from '../data/servicesData';
 
 const BOOKINGS_COLLECTION = 'bookings';
 const LOCAL_BOOKINGS_KEY = 'quick_fix_pro_bookings_cache';
+const DELETED_BOOKINGS_KEY = 'quick_fix_pro_deleted_bookings_cache';
+
+export function getDeletedBookingIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(DELETED_BOOKINGS_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+export function markBookingAsDeleted(bookingId: string) {
+  try {
+    const clean = bookingId.trim();
+    const set = getDeletedBookingIds();
+    set.add(clean);
+    localStorage.setItem(DELETED_BOOKINGS_KEY, JSON.stringify(Array.from(set)));
+  } catch (e) {
+    console.warn('Could not mark booking as deleted:', e);
+  }
+}
+
+export function unmarkBookingAsDeleted(bookingId: string) {
+  try {
+    const clean = bookingId.trim();
+    const set = getDeletedBookingIds();
+    if (set.has(clean)) {
+      set.delete(clean);
+      localStorage.setItem(DELETED_BOOKINGS_KEY, JSON.stringify(Array.from(set)));
+    }
+  } catch (e) {
+    console.warn('Could not unmark booking deletion:', e);
+  }
+}
 
 export function getLocalBookings(): BookingRecord[] {
   try {
     const raw = localStorage.getItem(LOCAL_BOOKINGS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const deleted = getDeletedBookingIds();
+    const list: BookingRecord[] = raw ? JSON.parse(raw) : [];
+    return list.filter(b => !deleted.has(b.bookingId));
   } catch {
     return [];
   }
@@ -28,7 +64,9 @@ export function getLocalBookings(): BookingRecord[] {
 
 export function saveLocalBooking(booking: BookingRecord) {
   try {
-    const list = getLocalBookings().filter(b => b.bookingId !== booking.bookingId);
+    const clean = booking.bookingId.trim();
+    unmarkBookingAsDeleted(clean);
+    const list = getLocalBookings().filter(b => b.bookingId !== clean);
     list.unshift(booking);
     localStorage.setItem(LOCAL_BOOKINGS_KEY, JSON.stringify(list));
   } catch (e) {
@@ -38,7 +76,9 @@ export function saveLocalBooking(booking: BookingRecord) {
 
 export function removeLocalBooking(bookingId: string) {
   try {
-    const list = getLocalBookings().filter(b => b.bookingId !== bookingId);
+    const clean = bookingId.trim();
+    markBookingAsDeleted(clean);
+    const list = getLocalBookings().filter(b => b.bookingId !== clean);
     localStorage.setItem(LOCAL_BOOKINGS_KEY, JSON.stringify(list));
   } catch (e) {
     console.warn('Could not remove booking from localStorage:', e);
@@ -87,7 +127,7 @@ export async function createBookingInFirestore(
     userId: userId || 'admin_portal'
   };
 
-  // 1. Immediately cache in local storage for instant responsiveness
+  // 1. Immediately cache in local storage
   saveLocalBooking(normalizedRecord);
 
   // 2. Persist to Firestore
@@ -105,6 +145,7 @@ export async function createBookingInFirestore(
  * Fetches all bookings belonging to a specific user (Firestore + local merge)
  */
 export async function fetchUserBookingsFromFirestore(userId: string): Promise<BookingRecord[]> {
+  const deletedSet = getDeletedBookingIds();
   const localList = getLocalBookings().filter(b => (b as any).userId === userId || !userId);
   try {
     const q = query(
@@ -114,12 +155,15 @@ export async function fetchUserBookingsFromFirestore(userId: string): Promise<Bo
     const querySnapshot = await getDocs(q);
     const results: BookingRecord[] = [];
     querySnapshot.forEach((docSnap) => {
-      results.push(docSnap.data() as BookingRecord);
+      const data = docSnap.data() as BookingRecord;
+      if (!deletedSet.has(data.bookingId)) {
+        results.push(data);
+      }
     });
 
     const map = new Map<string, BookingRecord>();
-    localList.forEach(b => map.set(b.bookingId, b));
-    results.forEach(b => map.set(b.bookingId, b));
+    localList.forEach(b => { if (!deletedSet.has(b.bookingId)) map.set(b.bookingId, b); });
+    results.forEach(b => { if (!deletedSet.has(b.bookingId)) map.set(b.bookingId, b); });
     return Array.from(map.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } catch (error) {
     console.warn('Could not fetch user bookings from Firestore, returning local cached bookings:', error);
@@ -134,9 +178,32 @@ export function subscribeToUserBookings(
   userId: string,
   onUpdate: (bookings: BookingRecord[]) => void
 ): Unsubscribe {
-  const localList = getLocalBookings().filter(b => b.userId === userId || !b.userId);
-  if (localList.length > 0) {
-    onUpdate(localList);
+  const fetchAndMergeUser = (firestoreRecords: BookingRecord[] = []) => {
+    const localList = getLocalBookings().filter(b => b.userId === userId || !b.userId);
+    const deletedSet = getDeletedBookingIds();
+
+    const map = new Map<string, BookingRecord>();
+    localList.forEach(b => {
+      if (!deletedSet.has(b.bookingId)) map.set(b.bookingId, b);
+    });
+    firestoreRecords.forEach(b => {
+      if (!deletedSet.has(b.bookingId)) map.set(b.bookingId, b);
+    });
+
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  };
+
+  onUpdate(fetchAndMergeUser([]));
+
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === LOCAL_BOOKINGS_KEY || e.key === DELETED_BOOKINGS_KEY) {
+      onUpdate(fetchAndMergeUser([]));
+    }
+  };
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', handleStorage);
   }
 
   const q = query(
@@ -144,28 +211,27 @@ export function subscribeToUserBookings(
     where('userId', '==', userId)
   );
 
-  return onSnapshot(
+  const unsubscribeFirestore = onSnapshot(
     q,
     (querySnapshot) => {
       const firestoreRecords: BookingRecord[] = [];
       querySnapshot.forEach((docSnap) => {
         firestoreRecords.push(docSnap.data() as BookingRecord);
       });
-
-      const map = new Map<string, BookingRecord>();
-      localList.forEach(b => map.set(b.bookingId, b));
-      firestoreRecords.forEach(b => map.set(b.bookingId, b));
-
-      const merged = Array.from(map.values()).sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      onUpdate(merged);
+      onUpdate(fetchAndMergeUser(firestoreRecords));
     },
     (error) => {
-      console.warn('Firestore subscription notice, falling back to local bookings:', error?.message);
-      onUpdate(localList);
+      console.warn('Firestore subscription notice, falling back:', error?.message);
+      onUpdate(fetchAndMergeUser([]));
     }
   );
+
+  return () => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('storage', handleStorage);
+    }
+    unsubscribeFirestore();
+  };
 }
 
 /**
@@ -174,43 +240,74 @@ export function subscribeToUserBookings(
 export function subscribeToAllBookings(
   onUpdate: (bookings: BookingRecord[]) => void
 ): Unsubscribe {
-  // Start with local bookings + sample bookings so admin sees data immediately
-  const localList = getLocalBookings();
-  const initialCombined = [...localList];
-  SAMPLE_TRACKING_BOOKINGS.forEach(sample => {
-    if (!initialCombined.some(b => b.bookingId === sample.bookingId)) {
-      initialCombined.push(sample);
+  const fetchAndMergeAll = (firestoreRecords: BookingRecord[] = []) => {
+    const localList = getLocalBookings();
+    const deletedSet = getDeletedBookingIds();
+
+    const map = new Map<string, BookingRecord>();
+
+    // 1. Include sample tracking bookings (unless marked as deleted)
+    SAMPLE_TRACKING_BOOKINGS.forEach(b => {
+      if (!deletedSet.has(b.bookingId)) {
+        map.set(b.bookingId, b);
+      }
+    });
+
+    // 2. Include local storage bookings
+    localList.forEach(b => {
+      if (!deletedSet.has(b.bookingId)) {
+        map.set(b.bookingId, b);
+      }
+    });
+
+    // 3. Overwrite with live Firestore docs
+    firestoreRecords.forEach(b => {
+      if (!deletedSet.has(b.bookingId)) {
+        map.set(b.bookingId, b);
+      }
+    });
+
+    return Array.from(map.values()).sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  };
+
+  // Initial immediate playback
+  onUpdate(fetchAndMergeAll([]));
+
+  // Storage event listener for deletion sync across tabs/windows
+  const handleStorage = (e: StorageEvent) => {
+    if (e.key === LOCAL_BOOKINGS_KEY || e.key === DELETED_BOOKINGS_KEY) {
+      onUpdate(fetchAndMergeAll([]));
     }
-  });
-  onUpdate(initialCombined);
+  };
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', handleStorage);
+  }
 
   const colRef = collection(db, BOOKINGS_COLLECTION);
 
-  return onSnapshot(
+  const unsubscribeFirestore = onSnapshot(
     colRef,
     (querySnapshot) => {
       const firestoreRecords: BookingRecord[] = [];
       querySnapshot.forEach((docSnap) => {
         firestoreRecords.push(docSnap.data() as BookingRecord);
       });
-
-      const map = new Map<string, BookingRecord>();
-      // Include sample and local bookings
-      SAMPLE_TRACKING_BOOKINGS.forEach(b => map.set(b.bookingId, b));
-      localList.forEach(b => map.set(b.bookingId, b));
-      // Overwrite with live Firestore docs
-      firestoreRecords.forEach(b => map.set(b.bookingId, b));
-
-      const all = Array.from(map.values()).sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      onUpdate(all);
+      onUpdate(fetchAndMergeAll(firestoreRecords));
     },
     (error) => {
       console.warn('All bookings subscription fallback:', error?.message);
-      onUpdate(initialCombined);
+      onUpdate(fetchAndMergeAll([]));
     }
   );
+
+  return () => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('storage', handleStorage);
+    }
+    unsubscribeFirestore();
+  };
 }
 
 /**
@@ -265,13 +362,16 @@ export async function deleteBookingFromFirestore(bookingId: string): Promise<voi
  */
 export async function getBookingByIdFromFirestore(bookingId: string): Promise<BookingRecord | null> {
   const cleanId = bookingId.trim();
+  const deletedSet = getDeletedBookingIds();
+  if (deletedSet.has(cleanId)) return null;
+
   const localMatch = getLocalBookings().find(b => b.bookingId.toLowerCase() === cleanId.toLowerCase())
     || SAMPLE_TRACKING_BOOKINGS.find(b => b.bookingId.toLowerCase() === cleanId.toLowerCase());
   
   try {
     const docRef = doc(db, BOOKINGS_COLLECTION, cleanId);
     const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
+    if (docSnap.exists() && !deletedSet.has(cleanId)) {
       return docSnap.data() as BookingRecord;
     }
   } catch (error) {
@@ -290,21 +390,20 @@ export function subscribeToBookingById(
 ): Unsubscribe {
   const cleanId = bookingId.trim();
 
-  const getInitial = (): BookingRecord | null => {
+  const getRecord = (): BookingRecord | null => {
+    const deletedSet = getDeletedBookingIds();
+    if (deletedSet.has(cleanId)) return null;
+
     const localMatch = getLocalBookings().find(b => b.bookingId.toLowerCase() === cleanId.toLowerCase())
       || SAMPLE_TRACKING_BOOKINGS.find(b => b.bookingId.toLowerCase() === cleanId.toLowerCase());
     return localMatch || null;
   };
 
-  const initial = getInitial();
-  if (initial) {
-    onUpdate(initial);
-  }
+  onUpdate(getRecord());
 
   const handleStorage = (e: StorageEvent) => {
-    if (e.key === LOCAL_BOOKINGS_KEY) {
-      const updated = getInitial();
-      if (updated) onUpdate(updated);
+    if (e.key === LOCAL_BOOKINGS_KEY || e.key === DELETED_BOOKINGS_KEY) {
+      onUpdate(getRecord());
     }
   };
   if (typeof window !== 'undefined') {
@@ -315,18 +414,22 @@ export function subscribeToBookingById(
   const unsubscribeFirestore = onSnapshot(
     docRef,
     (docSnap) => {
+      const deletedSet = getDeletedBookingIds();
+      if (deletedSet.has(cleanId)) {
+        onUpdate(null);
+        return;
+      }
+
       if (docSnap.exists()) {
         const record = docSnap.data() as BookingRecord;
         saveLocalBooking(record);
         onUpdate(record);
       } else {
-        const fallback = getInitial();
-        if (fallback) onUpdate(fallback);
+        onUpdate(getRecord());
       }
     },
     (_error) => {
-      const fallback = getInitial();
-      onUpdate(fallback);
+      onUpdate(getRecord());
     }
   );
 

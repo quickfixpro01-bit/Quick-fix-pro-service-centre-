@@ -12,7 +12,8 @@ import {
   Award,
   ChevronRight,
   Flame,
-  Wind
+  Wind,
+  Rotate3d
 } from 'lucide-react';
 import { APPLIANCE_SERVICES } from '../data/servicesData';
 import { SocialIcon } from './SocialIcons';
@@ -260,10 +261,10 @@ export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExplorePackages }) 
                 <div>
                   <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                     <Award className="w-3.5 h-3.5" />
-                    New: Annual Maintenance & Bundle Plans
+                    New: Service Bundles & Deep Clean Packages
                   </div>
                   <div className="text-[11px] text-slate-300 mt-0.5">
-                    Get year-round AC & Fridge checkups with zero service fee.
+                    Save up to 47% on multi-appliance deep cleaning & diagnostics.
                   </div>
                 </div>
                 <button

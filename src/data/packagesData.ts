@@ -84,34 +84,6 @@ export const TIERED_PACKAGES: ServicePackage[] = [
     idealFor: 'Apartments, families moving into rented homes, or pre-summer checkups.'
   },
   {
-    id: 'annual-amc-plan',
-    name: 'Annual Appliance Maintenance Plan (AMC)',
-    tagline: 'Year-round proactive protection covering your AC & Refrigerator',
-    badge: 'Ultimate Peace of Mind',
-    badgeColor: 'bg-amber-600 text-white',
-    price: 1499,
-    originalPrice: 2499,
-    savings: 'Save ₹1,000 (40% OFF)',
-    period: '365 Days Complete Coverage',
-    popular: false,
-    coveredAppliances: ['Air Conditioners (up to 2 units)', 'Refrigerator (1 unit)'],
-    benefits: [
-      '2 Scheduled Comprehensive Visits per year (Pre-summer & Mid-year)',
-      '2 Foam-Jet High Pressure AC Services (Indoor + Outdoor coils)',
-      '1 Deep Refrigerator Condenser Flush & Defrost Sensor Check',
-      'Unlimited Emergency Diagnostic Calls with Zero Visit Charge',
-      'Guaranteed 2-Hour Express Doorstep SLA across Bangalore',
-      '20% Flat Discount on all genuine OEM spare parts',
-      'Digital AMC Passbook with dedicated Senior Technician assigned'
-    ],
-    features: [
-      { title: 'Zero Service Fees', desc: 'No labor or visit charges for 1 full year on covered cooling appliances.' },
-      { title: '15-25% Lower Electricity Bill', desc: 'Clean coils and optimal refrigerant balance save significant monthly power.' },
-      { title: 'Dedicated Priority Line', desc: 'Skip the booking queue with instant VIP technician dispatch.' }
-    ],
-    idealFor: 'Homeowners seeking hassle-free cooling year-round without surprise repair bills.'
-  },
-  {
     id: 'cooling-master-combo',
     name: 'Summer Cooling Master Combo',
     tagline: 'Dual Split AC Jet Wash + Refrigerator Condenser De-choke',

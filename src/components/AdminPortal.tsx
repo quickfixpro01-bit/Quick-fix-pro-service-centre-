@@ -253,7 +253,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
   // Handle Delete Booking
   const handleDeleteBooking = async (bookingId: string) => {
     if (confirm(`Are you sure you want to permanently delete booking ${bookingId}?`)) {
-      await deleteBookingFromFirestore(bookingId);
+      const cleanId = bookingId.trim();
+      setBookings(prev => prev.filter(b => b.bookingId.trim() !== cleanId));
+      await deleteBookingFromFirestore(cleanId);
     }
   };
 
@@ -913,17 +915,19 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
                         <div className="flex items-center justify-center gap-1.5">
                           <button
                             onClick={() => handleOpenEdit(b)}
-                            title="Edit Booking & Reassign Technician"
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                            title="Edit / Manage Booking Details"
+                            className="px-2.5 py-1.5 text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white rounded-lg transition-colors cursor-pointer font-bold flex items-center gap-1 text-[11px]"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-3.5 h-3.5" />
+                            <span>Edit</span>
                           </button>
                           <button
                             onClick={() => handleDeleteBooking(b.bookingId)}
-                            title="Delete Booking"
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                            title={`Delete ${b.status === 'completed' ? 'Completed ' : ''}Booking ${b.bookingId}`}
+                            className="px-2.5 py-1.5 text-rose-600 bg-rose-50 hover:bg-rose-600 hover:text-white border border-rose-200 rounded-lg transition-colors cursor-pointer font-bold flex items-center gap-1 text-[11px]"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
                           </button>
                         </div>
                       </td>
@@ -1298,21 +1302,36 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-200 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-200 flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() => setEditingBooking(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  onClick={() => {
+                    const id = editingBooking.bookingId;
+                    setEditingBooking(null);
+                    handleDeleteBooking(id);
+                  }}
+                  className="px-3 py-2 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-600 hover:text-white bg-rose-50 border border-rose-200 transition-colors cursor-pointer flex items-center gap-1.5"
                 >
-                  Cancel
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete Booking</span>
                 </button>
-                <button
-                  type="submit"
-                  disabled={isSavingEdit}
-                  className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition-colors shadow-sm cursor-pointer disabled:bg-slate-300"
-                >
-                  {isSavingEdit ? 'Saving Updates...' : 'Save & Sync Firestore'}
-                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingBooking(null)}
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingEdit}
+                    className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition-colors shadow-sm cursor-pointer disabled:bg-slate-300"
+                  >
+                    {isSavingEdit ? 'Saving Updates...' : 'Save & Sync Firestore'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

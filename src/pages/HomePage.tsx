@@ -11,6 +11,7 @@ import { FaqSection } from '../components/FaqSection';
 import { TestimonialCarousel } from '../components/TestimonialCarousel';
 import { ReferNeighborSection } from '../components/ReferNeighborSection';
 import { SocialSection } from '../components/SocialSection';
+import { TrustCertificationsRibbon } from '../components/TrustCertificationsRibbon';
 import { ServicePackage } from '../data/packagesData';
 import { ScrollReveal } from '../components/ScrollAnimation';
 
@@ -44,6 +45,13 @@ export const HomePage: React.FC<HomePageProps> = ({
         onExplorePackages={handleScrollToPackages}
       />
 
+      {/* Trust & Certifications Ribbon */}
+      <ScrollReveal direction="up" duration={0.55}>
+        <TrustCertificationsRibbon
+          onOpenBooking={() => onOpenBooking()}
+        />
+      </ScrollReveal>
+
       {/* 5,000+ Happy Customers & 6-Month Warranty with Proper Rate Banner */}
       <ScrollReveal direction="up" duration={0.6}>
         <WarrantyRateBanner
@@ -51,7 +59,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         />
       </ScrollReveal>
 
-      {/* Tiered Service Packages (Annual AMC, Deep Cleaning, Health Check-up) */}
+      {/* Tiered Service Packages (Deep Cleaning, Health Check-up, Combos) */}
       <ScrollReveal direction="up" duration={0.65}>
         <PackagesSection
           onSelectPackage={onSelectPackage}

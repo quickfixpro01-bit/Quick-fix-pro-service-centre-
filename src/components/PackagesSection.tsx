@@ -19,10 +19,9 @@ interface PackagesSectionProps {
 }
 
 export const PackagesSection: React.FC<PackagesSectionProps> = ({ onSelectPackage }) => {
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'amc' | 'bundles' | 'special'>('all');
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'bundles' | 'special'>('all');
 
   const filteredPackages = TIERED_PACKAGES.filter(pkg => {
-    if (selectedFilter === 'amc') return pkg.id.includes('amc');
     if (selectedFilter === 'bundles') return pkg.id.includes('bundle') || pkg.id.includes('combo');
     if (selectedFilter === 'special') return pkg.id.includes('deep-clean');
     return true;
@@ -39,7 +38,7 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({ onSelectPackag
             <span>Tiered Appliance Care & Savings</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white font-heading tracking-tight leading-tight">
-            Comprehensive Service Packages & AMC
+            Comprehensive Service Packages
           </h2>
           <p className="mt-3.5 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
             Prevent sudden breakdowns, reduce high electricity bills, and save up to 47% compared to standalone repairs. Includes certified technicians, genuine parts, and written warranties.
@@ -56,16 +55,6 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({ onSelectPackag
               }`}
             >
               All Packages ({TIERED_PACKAGES.length})
-            </button>
-            <button
-              onClick={() => setSelectedFilter('amc')}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                selectedFilter === 'amc'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
-              }`}
-            >
-              Annual AMC Plan
             </button>
             <button
               onClick={() => setSelectedFilter('special')}

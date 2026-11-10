@@ -219,14 +219,14 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
           </div>
         </div>
 
-        {/* Tiered Packages & AMC Section */}
+        {/* Tiered Packages & Service Bundles Section */}
         <div className="pt-8 border-t border-slate-200">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="text-xs font-bold text-blue-600 uppercase tracking-wider">
-              Yearly & Combo Savings
+              Combo & Bundle Savings
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-heading mt-1">
-              Tiered Maintenance Plans & AMC
+              Tiered Maintenance & Service Bundles
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-2">
               Prevent expensive sudden breakdowns with structured maintenance packages.

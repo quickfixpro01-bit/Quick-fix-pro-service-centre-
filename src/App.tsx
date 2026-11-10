@@ -1,18 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { BookingModal } from './components/BookingModal';
-import { TrackerModal } from './components/TrackerModal';
-import { PhoneAuthModal } from './components/PhoneAuthModal';
-import { RepairHistoryModal } from './components/RepairHistoryModal';
-import { QuickActionFab } from './components/QuickActionFab';
-import { AdminPortal } from './components/AdminPortal';
 import { HomePage } from './pages/HomePage';
-import { AboutPage } from './pages/AboutPage';
-import { ServicesPage } from './pages/ServicesPage';
-import { ContactPage } from './pages/ContactPage';
-import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
-import { TermsOfServicePage } from './pages/TermsOfServicePage';
+import { QuickActionFab } from './components/QuickActionFab';
 import { PageId } from './types/navigation';
 import { BookingRecord } from './data/servicesData';
 import { ServicePackage } from './data/packagesData';
@@ -24,6 +14,44 @@ import { subscribeToUserBookings } from './lib/bookingsService';
 import { ScrollProgressBar, ScrollToTopButton } from './components/ScrollAnimation';
 import { Background3DCanvas } from './components/Background3DCanvas';
 import { PushNotificationToast } from './components/PushNotificationToast';
+
+// Lazy load secondary application routes for code splitting
+const AboutPage = lazy(() => import('./pages/AboutPage').then(m => ({ default: m.AboutPage })));
+const ServicesPage = lazy(() => import('./pages/ServicesPage').then(m => ({ default: m.ServicesPage })));
+const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage').then(m => ({ default: m.PrivacyPolicyPage })));
+const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage').then(m => ({ default: m.TermsOfServicePage })));
+
+// Lazy load heavy components and interactive modals
+const AdminPortal = lazy(() => import('./components/AdminPortal').then(m => ({ default: m.AdminPortal })));
+const BookingModal = lazy(() => import('./components/BookingModal').then(m => ({ default: m.BookingModal })));
+const TrackerModal = lazy(() => import('./components/TrackerModal').then(m => ({ default: m.TrackerModal })));
+const PhoneAuthModal = lazy(() => import('./components/PhoneAuthModal').then(m => ({ default: m.PhoneAuthModal })));
+const RepairHistoryModal = lazy(() => import('./components/RepairHistoryModal').then(m => ({ default: m.RepairHistoryModal })));
+
+// Route Fallback Loading Spinner
+const PageLoadingFallback: React.FC<{ message?: string }> = ({ message = 'Loading Quick Fix Pro...' }) => (
+  <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 space-y-4">
+    <div className="relative w-12 h-12">
+      <div className="absolute inset-0 rounded-full border-4 border-blue-200 dark:border-slate-800"></div>
+      <div className="absolute inset-0 rounded-full border-4 border-blue-600 dark:border-amber-400 border-t-transparent animate-spin"></div>
+    </div>
+    <div className="text-center space-y-1">
+      <p className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">{message}</p>
+      <p className="text-[11px] text-slate-500 dark:text-slate-400">Bangalore Doorstep Service Center</p>
+    </div>
+  </div>
+);
+
+// Modal Fallback Loading Spinner Overlay
+const ModalLoadingFallback: React.FC<{ title: string }> = ({ title }) => (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+    <div className="bg-slate-900 text-white p-5 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-800 animate-in fade-in zoom-in-95">
+      <div className="w-5 h-5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin shrink-0"></div>
+      <span className="text-xs font-bold tracking-wide">{title}</span>
+    </div>
+  </div>
+);
 
 function AppContent() {
   const { currentUser } = useAuth();
@@ -159,10 +187,12 @@ function AppContent() {
     setIsTrackerOpen(true);
   };
 
-  // If on Admin Portal Page, render dedicated Admin Portal
+  // If on Admin Portal Page, render lazy-loaded dedicated Admin Portal
   if (currentPage === 'admin') {
     return (
-      <AdminPortal onBackToCustomer={() => handleNavigate('home')} />
+      <Suspense fallback={<PageLoadingFallback message="Loading Administrator Portal..." />}>
+        <AdminPortal onBackToCustomer={() => handleNavigate('home')} />
+      </Suspense>
     );
   }
 
@@ -184,44 +214,46 @@ function AppContent() {
         onOpenHistory={() => setIsHistoryOpen(true)}
       />
 
-      {/* Main Page Router */}
+      {/* Main Page Router with Suspense boundary for lazy routes */}
       <main className="flex-grow">
-        {currentPage === 'home' && (
-          <HomePage
-            onOpenBooking={handleOpenBooking}
-            onSelectPackage={handleSelectPackage}
-            onBookWithEstimate={handleBookWithEstimate}
-            onSelectLocality={handleSelectLocality}
-            onOpenBookingWithReferral={handleOpenBookingWithReferral}
-          />
-        )}
+        <Suspense fallback={<PageLoadingFallback message="Loading page..." />}>
+          {currentPage === 'home' && (
+            <HomePage
+              onOpenBooking={handleOpenBooking}
+              onSelectPackage={handleSelectPackage}
+              onBookWithEstimate={handleBookWithEstimate}
+              onSelectLocality={handleSelectLocality}
+              onOpenBookingWithReferral={handleOpenBookingWithReferral}
+            />
+          )}
 
-        {currentPage === 'about' && (
-          <AboutPage
-            onOpenBooking={() => handleOpenBooking()}
-            onNavigatePage={handleNavigate}
-          />
-        )}
+          {currentPage === 'about' && (
+            <AboutPage
+              onOpenBooking={() => handleOpenBooking()}
+              onNavigatePage={handleNavigate}
+            />
+          )}
 
-        {currentPage === 'services' && (
-          <ServicesPage
-            onOpenBooking={handleOpenBooking}
-            onSelectPackage={handleSelectPackage}
-            onBookWithEstimate={handleBookWithEstimate}
-          />
-        )}
+          {currentPage === 'services' && (
+            <ServicesPage
+              onOpenBooking={handleOpenBooking}
+              onSelectPackage={handleSelectPackage}
+              onBookWithEstimate={handleBookWithEstimate}
+            />
+          )}
 
-        {currentPage === 'contact' && (
-          <ContactPage />
-        )}
+          {currentPage === 'contact' && (
+            <ContactPage />
+          )}
 
-        {currentPage === 'privacy' && (
-          <PrivacyPolicyPage />
-        )}
+          {currentPage === 'privacy' && (
+            <PrivacyPolicyPage />
+          )}
 
-        {currentPage === 'terms' && (
-          <TermsOfServicePage />
-        )}
+          {currentPage === 'terms' && (
+            <TermsOfServicePage />
+          )}
+        </Suspense>
       </main>
 
       {/* Footer */}
@@ -236,40 +268,56 @@ function AppContent() {
         onOpenBooking={() => handleOpenBooking()}
       />
 
-      {/* Booking Wizard Modal */}
-      <BookingModal
-        isOpen={isBookingOpen}
-        onClose={() => setIsBookingOpen(false)}
-        initialServiceId={prefilledServiceId}
-        initialPackageId={prefilledPackageId}
-        initialLocality={prefilledLocality}
-        initialEstimate={prefilledEstimate}
-        initialReferralCode={prefilledReferralCode}
-        onBookingCreated={handleBookingCreated}
-        onTrackBooking={handleTrackBooking}
-      />
+      {/* Lazy Loaded Booking Wizard Modal */}
+      {isBookingOpen && (
+        <Suspense fallback={<ModalLoadingFallback title="Loading Booking Wizard..." />}>
+          <BookingModal
+            isOpen={isBookingOpen}
+            onClose={() => setIsBookingOpen(false)}
+            initialServiceId={prefilledServiceId}
+            initialPackageId={prefilledPackageId}
+            initialLocality={prefilledLocality}
+            initialEstimate={prefilledEstimate}
+            initialReferralCode={prefilledReferralCode}
+            onBookingCreated={handleBookingCreated}
+            onTrackBooking={handleTrackBooking}
+          />
+        </Suspense>
+      )}
 
-      {/* Live Service & Warranty Tracker Modal */}
-      <TrackerModal
-        isOpen={isTrackerOpen}
-        onClose={() => setIsTrackerOpen(false)}
-        initialBookingId={activeTrackingId}
-        customBookings={userBookings}
-      />
+      {/* Lazy Loaded Live Service & Warranty Tracker Modal */}
+      {isTrackerOpen && (
+        <Suspense fallback={<ModalLoadingFallback title="Loading Live Service Tracker..." />}>
+          <TrackerModal
+            isOpen={isTrackerOpen}
+            onClose={() => setIsTrackerOpen(false)}
+            initialBookingId={activeTrackingId}
+            customBookings={userBookings}
+          />
+        </Suspense>
+      )}
 
-      {/* Phone Sign-In & Verification Modal */}
-      <PhoneAuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-      />
+      {/* Lazy Loaded Phone Sign-In & Verification Modal */}
+      {isAuthOpen && (
+        <Suspense fallback={<ModalLoadingFallback title="Loading Sign In..." />}>
+          <PhoneAuthModal
+            isOpen={isAuthOpen}
+            onClose={() => setIsAuthOpen(false)}
+          />
+        </Suspense>
+      )}
 
-      {/* User Profile & Repair History Dashboard Modal */}
-      <RepairHistoryModal
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        userBookings={userBookings}
-        onOpenBooking={() => setIsBookingOpen(true)}
-      />
+      {/* Lazy Loaded User Profile & Repair History Dashboard Modal */}
+      {isHistoryOpen && (
+        <Suspense fallback={<ModalLoadingFallback title="Loading Repair History..." />}>
+          <RepairHistoryModal
+            isOpen={isHistoryOpen}
+            onClose={() => setIsHistoryOpen(false)}
+            userBookings={userBookings}
+            onOpenBooking={() => setIsBookingOpen(true)}
+          />
+        </Suspense>
+      )}
 
       {/* Live Foreground Push Alert Notification Toast */}
       <PushNotificationToast onTrackBooking={handleTrackBooking} />

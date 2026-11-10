@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, 
   CheckCircle2, 
@@ -447,20 +448,32 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     : '#';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/75 backdrop-blur-xs overscroll-contain">
-      {/* Backdrop overlay (click to close) */}
-      <div 
-        className="fixed inset-0 bg-transparent" 
-        onClick={onClose} 
-        aria-hidden="true" 
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/75 backdrop-blur-xs overscroll-contain"
+        >
+          {/* Backdrop overlay (click to close) */}
+          <div 
+            className="fixed inset-0 bg-transparent" 
+            onClick={onClose} 
+            aria-hidden="true" 
+          />
 
-      {/* Modal Dialog Card */}
-      <div 
-        className="relative w-full max-w-2xl max-h-[92vh] sm:max-h-[88vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col z-10 overflow-hidden my-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Modal Top Header (Sticky / Shrink-0) */}
+          {/* Modal Dialog Card with smooth spring slide-in */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.94, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.94, y: 16 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full max-w-2xl max-h-[92vh] sm:max-h-[88vh] bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col z-10 overflow-hidden my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Top Header (Sticky / Shrink-0) */}
         <div className="bg-slate-900 text-white px-5 sm:px-6 py-4 flex items-center justify-between shrink-0 border-b border-slate-800">
           <div className="flex items-center gap-2.5">
             <img
@@ -487,12 +500,20 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
         {/* Modal Content - Scrollable Body */}
         <div className="p-5 sm:p-6 overflow-y-auto overscroll-contain flex-1 touch-pan-y modal-body-scroll">
-          {confirmedBooking ? (
-            /* Booking Confirmed State */
-            <div className="space-y-6 text-center py-4">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
-                <CheckCircle2 className="w-10 h-10" />
-              </div>
+          <AnimatePresence mode="wait">
+            {confirmedBooking ? (
+              /* Booking Confirmed State */
+              <motion.div
+                key="confirmed-step"
+                initial={{ opacity: 0, scale: 0.92, y: 14 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: -14 }}
+                transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+                className="space-y-6 text-center py-4"
+              >
+                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
+                  <CheckCircle2 className="w-10 h-10" />
+                </div>
 
               <div>
                 <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
@@ -635,10 +656,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               <p className="text-[11px] text-slate-400">
                 A confirmation SMS with technician Babu's direct contact (8095996638) has been queued. Inspection fee ₹199 is waived upon repair approval.
               </p>
-            </div>
+            </motion.div>
           ) : (
             /* Multi-step Form */
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <motion.form 
+              key="booking-form-step"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              onSubmit={handleSubmit} 
+              className="space-y-6"
+            >
               
               {/* Type Switcher */}
               <div className="flex p-1 bg-slate-100 rounded-xl">
@@ -667,104 +696,123 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 >
                   <span className="flex items-center justify-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Annual Maintenance / Package</span>
+                    <span>Care Package / Combo</span>
                   </span>
                 </button>
               </div>
 
-              {/* Service or Package Selection */}
-              {bookingType === 'service' ? (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Select Appliance:
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {APPLIANCE_SERVICES.map((srv) => (
-                      <button
-                        key={srv.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedAppliance(srv.id);
-                          setSelectedIssue('');
-                        }}
-                        className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all cursor-pointer ${
-                          selectedAppliance === srv.id
-                            ? 'border-blue-600 bg-blue-50/70 text-blue-800'
-                            : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                        }`}
+              {/* Service or Package Selection with smooth slide transition */}
+              <AnimatePresence mode="wait">
+                {bookingType === 'service' ? (
+                  <motion.div
+                    key="service-selection-panel"
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 16 }}
+                    transition={{ duration: 0.22, ease: 'easeInOut' }}
+                  >
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                      Select Appliance:
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {APPLIANCE_SERVICES.map((srv) => (
+                        <button
+                          key={srv.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedAppliance(srv.id);
+                            setSelectedIssue('');
+                          }}
+                          className={`p-2.5 rounded-xl border text-xs font-bold text-left transition-all cursor-pointer ${
+                            selectedAppliance === srv.id
+                              ? 'border-blue-600 bg-blue-50/70 text-blue-800'
+                              : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
+                          }`}
+                        >
+                          <div className="truncate">{srv.name.replace(' Repair', '')}</div>
+                          <div className="text-[10px] text-amber-600 font-semibold mt-0.5">from ₹{srv.startingPrice}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="package-selection-panel"
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.22, ease: 'easeInOut' }}
+                  >
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                      Select Care Package:
+                    </label>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {TIERED_PACKAGES.map((pkg) => (
+                        <button
+                          key={pkg.id}
+                          type="button"
+                          onClick={() => setSelectedPackage(pkg.id)}
+                          className={`p-3 rounded-xl border text-xs text-left transition-all cursor-pointer ${
+                            selectedPackage === pkg.id
+                              ? 'border-blue-600 bg-blue-50/70 text-slate-900 ring-1 ring-blue-600'
+                              : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
+                          }`}
+                        >
+                          <div className="font-bold flex items-center justify-between">
+                            <span className="truncate pr-1">{pkg.name}</span>
+                            <span className="text-blue-700 font-extrabold shrink-0">
+                              {pkg.appliancePricing ? `from ₹${pkg.price}` : `₹${pkg.price}`}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 mt-1 line-clamp-1">{pkg.period}</div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {currentPkg.appliancePricing && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-3 p-3 rounded-xl bg-blue-50/70 border border-blue-200"
                       >
-                        <div className="truncate">{srv.name.replace(' Repair', '')}</div>
-                        <div className="text-[10px] text-amber-600 font-semibold mt-0.5">from ₹{srv.startingPrice}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                    Select Care Package / AMC:
-                  </label>
-                  <div className="grid sm:grid-cols-2 gap-2">
-                    {TIERED_PACKAGES.map((pkg) => (
-                      <button
-                        key={pkg.id}
-                        type="button"
-                        onClick={() => setSelectedPackage(pkg.id)}
-                        className={`p-3 rounded-xl border text-xs text-left transition-all cursor-pointer ${
-                          selectedPackage === pkg.id
-                            ? 'border-blue-600 bg-blue-50/70 text-slate-900 ring-1 ring-blue-600'
-                            : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white'
-                        }`}
-                      >
-                        <div className="font-bold flex items-center justify-between">
-                          <span className="truncate pr-1">{pkg.name}</span>
-                          <span className="text-blue-700 font-extrabold shrink-0">
-                            {pkg.appliancePricing ? `from ₹${pkg.price}` : `₹${pkg.price}`}
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                            Select Machine Type:
+                          </label>
+                          <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                            Updated Rate Card
                           </span>
                         </div>
-                        <div className="text-[10px] text-slate-500 mt-1 line-clamp-1">{pkg.period}</div>
-                      </button>
-                    ))}
-                  </div>
-
-                  {currentPkg.appliancePricing && (
-                    <div className="mt-3 p-3 rounded-xl bg-blue-50/70 border border-blue-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                          Select Machine Type:
-                        </label>
-                        <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                          Updated Rate Card
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        {currentPkg.appliancePricing.map((tier) => (
-                          <button
-                            key={tier.type}
-                            type="button"
-                            onClick={() => setSelectedApplianceTypeTier(tier.type)}
-                            className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                              selectedApplianceTypeTier === tier.type
-                                ? 'bg-blue-600 text-white border-blue-600 shadow-sm ring-2 ring-blue-600/30'
-                                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                            }`}
-                          >
-                            <div className="text-[11px] font-semibold truncate">{tier.type}</div>
-                            <div className={`text-sm font-extrabold mt-0.5 ${selectedApplianceTypeTier === tier.type ? 'text-white' : 'text-blue-700'}`}>
-                              ₹{tier.price}
-                            </div>
-                            {tier.originalPrice && (
-                              <div className={`text-[9px] line-through ${selectedApplianceTypeTier === tier.type ? 'text-blue-200' : 'text-slate-400'}`}>
-                                ₹{tier.originalPrice}
+                        <div className="grid grid-cols-3 gap-2">
+                          {currentPkg.appliancePricing.map((tier) => (
+                            <button
+                              key={tier.type}
+                              type="button"
+                              onClick={() => setSelectedApplianceTypeTier(tier.type)}
+                              className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                                selectedApplianceTypeTier === tier.type
+                                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm ring-2 ring-blue-600/30'
+                                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                              }`}
+                            >
+                              <div className="text-[11px] font-semibold truncate">{tier.type}</div>
+                              <div className={`text-sm font-extrabold mt-0.5 ${selectedApplianceTypeTier === tier.type ? 'text-white' : 'text-blue-700'}`}>
+                                ₹{tier.price}
                               </div>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                              {tier.originalPrice && (
+                                <div className={`text-[9px] line-through ${selectedApplianceTypeTier === tier.type ? 'text-blue-200' : 'text-slate-400'}`}>
+                                  ₹{tier.originalPrice}
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Brand & Common Issues */}
               <div className="grid sm:grid-cols-2 gap-4">
@@ -1107,11 +1155,14 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   </>
                 )}
               </button>
-            </form>
+            </motion.form>
           )}
+        </AnimatePresence>
         </div>
 
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
   );
 };
