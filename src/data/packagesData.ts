@@ -113,72 +113,79 @@ export const TIERED_PACKAGES: ServicePackage[] = [
 
 export interface FaqItem {
   id: string;
-  category: 'warranty' | 'verification' | 'payment' | 'scheduling' | 'parts' | 'pricing' | 'general';
+  category: 'costs' | 'expertise' | 'warranty';
   question: string;
   answer: string;
   highlight?: string;
 }
 
 export const FAQ_DATA: FaqItem[] = [
-  // 1. Service Warranties
+  // 1. Repair Costs & Pricing Transparency
+  {
+    id: 'faq-costs-1',
+    category: 'costs',
+    question: 'How much do repairs cost, and are there any hidden charges?',
+    answer: 'Every repair begins with an upfront, flat-rate quotation from our standard Bangalore rate card before any work starts. Core service visits start from ₹249 (Microwave), ₹299 (Washing Machine), ₹399 (Refrigerator), and ₹499 (AC Service). Spare parts are billed strictly at genuine OEM MRP with zero hidden weekend, convenience, or doorstep surcharges.',
+    highlight: 'Upfront written quote before repair starts • Zero hidden fees.'
+  },
+  {
+    id: 'faq-costs-2',
+    category: 'costs',
+    question: 'How is the ₹199 diagnostic inspection fee waived?',
+    answer: 'Our doorstep inspection fee is ₹199, which covers technician travel and a 32-point diagnostic check with calibrated tools. Whenever you approve the repair quote provided by our technician, this ₹199 inspection fee is 100% WAIVED OFF and deducted directly from your final invoice.',
+    highlight: 'Inspection fee is ₹0 when you proceed with the repair.'
+  },
+  {
+    id: 'faq-costs-3',
+    category: 'costs',
+    question: 'When do I pay, and what payment modes are accepted?',
+    answer: 'We follow a strict Pay-After-Service policy — you never pay in advance. After the technician completes the repair and runs a live cooling, heating, or spin demonstration in front of you, you can pay via UPI (GPay, PhonePe, Paytm), Credit/Debit Card, Net Banking, or Cash and receive an instant digital GST/tax invoice on WhatsApp.',
+    highlight: 'Zero advance payment • Pay via UPI, Card, or Cash after live demo.'
+  },
+
+  // 2. Technician Expertise & Safety
+  {
+    id: 'faq-expertise-1',
+    category: 'expertise',
+    question: 'What appliance brands and technologies are your technicians trained to fix?',
+    answer: 'Our Bangalore specialists hold 5+ years of hands-on experience across all major brands including LG, Samsung, Bosch, IFB, Whirlpool, Siemens, Haier, Godrej, Daikin, Voltas, and O General. Each technician is trained on modern Inverter PCB boards, BLDC direct-drive motors, frost-free thermal sensors, and R32/R410A refrigerant systems.',
+    highlight: 'Multi-brand Inverter PCB & Direct-Drive certified engineers.'
+  },
+  {
+    id: 'faq-expertise-2',
+    category: 'expertise',
+    question: 'How are Quick Fix Pro technicians verified and vetted?',
+    answer: 'Customer safety and technical quality come first. Every technician undergoes mandatory 3-Tier Verification: 1) Aadhar government ID & local Bangalore police background clearance. 2) Practical diagnostic skill assessment with 5+ years minimum field experience. 3) Doorstep hygiene training including shoe covers and post-repair workspace cleanup.',
+    highlight: 'Aadhar & Police verified specialists with 5+ years experience.'
+  },
+  {
+    id: 'faq-expertise-3',
+    category: 'expertise',
+    question: 'Do technicians carry genuine spare parts and official ID?',
+    answer: 'Yes. Before arrival, you receive an SMS/WhatsApp alert with your technician’s name, photo, phone number (e.g., Senior Specialist Babu: 8095996638), and vehicle number. Technicians carry sealed, OEM-grade spare parts in their service vans so 92% of repairs are finished in a single doorstep visit.',
+    highlight: '92% single-visit completion with sealed OEM spare parts.'
+  },
+
+  // 3. Warranty Terms & Claims
   {
     id: 'faq-warranty-1',
     category: 'warranty',
-    question: 'How does your 6-Month Written Service & Parts Warranty work?',
-    answer: 'Every repair conducted by QuickFixPro comes with an official 6-Month (180-Day) written warranty certificate. The warranty covers both the replaced spare part (against manufacturing defects, failure, or burn-out) and technician re-visit labor. If the exact same issue recurs within 180 days, our technician will visit your Bangalore address within 2 hours and fix or replace the component with zero extra charges.',
-    highlight: '180-day digital warranty certificate with instant WhatsApp verification.'
+    question: 'What does your 6-Month Written Warranty cover?',
+    answer: 'Every repair completed by Quick Fix Pro includes an official 6-Month (180-Day) Written Warranty certificate. It covers both the newly replaced OEM spare parts (against defects, failure, or burn-out) and all technician re-visit labor charges for the repaired fault.',
+    highlight: '180-day written coverage on both replaced spare parts & labor.'
   },
   {
     id: 'faq-warranty-fail',
     category: 'warranty',
-    question: 'What happens if the repair fails or the same issue recurs?',
-    answer: 'If a repair fails or the exact same problem reoccurs within your 6-month warranty period, you are fully protected: 1) We prioritize your service ticket and dispatch a senior specialist to your doorstep within 2 hours. 2) Re-inspection, technician labor, and replacement of the defective spare part are 100% FREE with zero visitation fee. 3) In the rare circumstance that the appliance fault cannot be permanently corrected, we issue a 100% full refund on our service labor charges.',
-    highlight: 'Zero-cost 2-hour warranty revisit + free part replacement or 100% money-back refund.'
+    question: 'What happens if the same issue recurs during the warranty period?',
+    answer: 'If the same fault reoccurs within 180 days: 1) Your ticket is marked priority and a senior specialist is dispatched within 2 hours. 2) Re-inspection, labor, and replacement of any defective spare part are 100% FREE with zero visit fee. 3) If an issue cannot be permanently resolved, we refund 100% of our service labor charges.',
+    highlight: 'Priority 2-hour free revisit + free part replacement or labor refund.'
   },
   {
     id: 'faq-warranty-lookup',
     category: 'warranty',
-    question: 'How do I claim a warranty revisit without physical paper receipts?',
-    answer: 'You do not need paper receipts! Your booking reference number (e.g. QFP-8492) and registered mobile number are permanently logged in our Bangalore service ledger. Simply tap "Track Service" on our website or call our helpline (+91 80959 96638), and an express warranty revisit is auto-scheduled.',
-    highlight: 'No paper bills required. Instant phone number ledger lookup.'
-  },
-
-  // 2. Technician Verification & Safety
-  {
-    id: 'faq-verify-1',
-    category: 'verification',
-    question: 'How are QuickFixPro technicians verified and background-checked?',
-    answer: 'Customer safety and peace of mind are paramount. Every technician on our Bangalore roster undergoes mandatory 3-Tier Verification: 1) Aadhar government ID and local Bangalore police background verification. 2) Prior 5+ years hands-on experience credential verification. 3) Mandatory protocol training on wearing shoe covers, sanitization, and polite doorstep behavior.',
-    highlight: 'Police background verified + Aadhar authenticated 5+ year specialists.'
-  },
-  {
-    id: 'faq-verify-2',
-    category: 'verification',
-    question: 'Will the technician arrive with official ID and vehicle tracking?',
-    answer: 'Yes. Upon booking confirmation, you receive a SMS/WhatsApp alert containing your assigned technician’s full name, live photo, verified phone number (e.g., Senior Tech Babu: 8095996638), and registered vehicle number (e.g. KA 01 EK 4920). The technician arrives in official QuickFixPro uniform with a digital photo ID badge.',
-    highlight: 'Photo ID, vehicle number & direct technician contact provided before arrival.'
-  },
-
-  // 3. Payment & Pricing Policies
-  {
-    id: 'faq-payment-1',
-    category: 'payment',
-    question: 'How does your "Pay After Service" policy work?',
-    answer: 'You never pay in advance! The technician completes the repair, performs a live demonstration test run in front of you (checking spin speed, cooling, or heating), and ensures you are 100% satisfied. Only after your approval do you pay using your preferred payment mode.',
-    highlight: 'Zero advance payment required. Test-and-approve before paying.'
-  },
-  {
-    id: 'faq-payment-2',
-    category: 'payment',
-    question: 'How is the ₹199 diagnostic inspection fee waived?',
-    answer: 'Our doorstep inspection fee is ₹199, which covers technician travel and multi-point diagnostic testing with specialized tools. If you choose to proceed with the repair quotation provided by the technician, this ₹199 inspection fee is 100% WAIVED OFF and deducted directly from your final repair invoice!',
-    highlight: 'Inspection fee is ₹0 when you proceed with the repair.'
-  },
-  {
-    id: 'faq-payment-3',
-    category: 'payment',
-    question: 'What payment modes are accepted upon service completion?',
-    answer: 'We accept all digital and cash payment options: UPI (Google Pay, PhonePe, Paytm, BHIM), Credit & Debit Cards via mobile POS, Net Banking, and Cash. An instant itemized tax invoice is sent directly to your WhatsApp.',
-    highlight: 'UPI, Credit/Debit Cards, Net Banking & Cash accepted with instant WhatsApp invoice.'
+    question: 'How do I claim a warranty service without paper bills?',
+    answer: 'Your warranty is stored digitally against your Booking ID (e.g., QFP-8492) and registered mobile number. You never need physical paper receipts—simply open "Track Service" on our website or call +91 80959 96638 to schedule an instant zero-cost warranty revisit.',
+    highlight: 'Paperless digital warranty lookup via phone number or Booking ID.'
   }
 ];

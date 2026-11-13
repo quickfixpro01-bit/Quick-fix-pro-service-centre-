@@ -20,14 +20,14 @@ import { FAQ_DATA, FaqItem } from '../data/packagesData';
 import { FadeInUp, StaggerContainer, StaggerItem } from './ScrollAnimation';
 
 export const FaqSection: React.FC = () => {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'warranty' | 'verification' | 'payment'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'costs' | 'expertise' | 'warranty'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Multi-item accordion state: multiple questions can stay open concurrently
+  // Multi-item accordion state: one flagship question open per pillar by default
   const [openItems, setOpenItems] = useState<Record<string, boolean>>({
-    'faq-warranty-1': true,
-    'faq-verify-1': true,
-    'faq-payment-1': true
+    'faq-costs-1': true,
+    'faq-expertise-1': true,
+    'faq-warranty-1': true
   });
 
   const toggleItem = (id: string) => {
@@ -75,7 +75,7 @@ export const FaqSection: React.FC = () => {
           <div className="text-center max-w-3xl mx-auto mb-12">
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-900 dark:text-blue-300 text-xs font-bold uppercase tracking-wider mb-4 border border-blue-200/80 dark:border-blue-800 shadow-2xs">
               <HelpCircle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Service Warranties • Technician Safety • Payment Guarantees</span>
+              <span>Repair Costs • Technician Expertise • Warranty Terms</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white font-heading tracking-tight leading-tight">
@@ -83,7 +83,7 @@ export const FaqSection: React.FC = () => {
             </h2>
 
             <p className="mt-3 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
-              Everything you need to know about our 6-month written warranty, background-checked senior technicians, and pay-after-service policies in Bangalore.
+              Clear answers on Bangalore repair costs, certified multi-brand technician expertise, and our 6-month written warranty terms.
             </p>
 
             {/* Search Bar */}
@@ -93,13 +93,13 @@ export const FaqSection: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search warranty, technician ID, payment modes, inspection fee..."
-                className="w-full pl-10 pr-16 py-3 rounded-xl border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none text-sm transition-all shadow-xs"
+                placeholder="Search repair costs, technician expertise, warranty terms..."
+                className="w-full pl-10 pr-16 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-500/30 outline-none text-sm transition-all shadow-xs"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-700 font-bold px-2 py-1 rounded bg-slate-100 cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white font-bold px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 cursor-pointer"
                 >
                   Clear
                 </button>
@@ -108,68 +108,68 @@ export const FaqSection: React.FC = () => {
           </div>
         </FadeInUp>
 
-        {/* 3 Pillar Highlight Cards: Warranties, Verification, Payment */}
+        {/* 3 Pillar Highlight Cards: Repair Costs, Technician Expertise, Warranty Terms */}
         <StaggerContainer className="grid md:grid-cols-3 gap-6 mb-12">
           
-          {/* Card 1: 6-Month Written Warranty Card */}
+          {/* Card 1: 6-Month Written Warranty Terms */}
           <StaggerItem>
-            <div className="rounded-2xl p-6 bg-gradient-to-b from-blue-50/80 via-blue-50/30 to-white border border-blue-200 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow h-full">
+            <div className="rounded-2xl p-6 bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-50 border-2 border-blue-400 shadow-md shadow-blue-500/15 relative overflow-hidden flex flex-col justify-between hover:shadow-lg hover:shadow-blue-500/25 transition-all h-full">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-4 shadow-sm shadow-blue-500/30">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white flex items-center justify-center mb-4 shadow-md shadow-blue-500/40">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <h3 className="font-heading text-lg font-bold text-slate-900">
-                  6-Month Written Warranty Card
+                  6-Month Written Warranty Terms
                 </h3>
-                <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                  Official 180-day written guarantee on parts and labor. If the issue recurs, technician Babu returns within 2 hours with zero visit fee.
+                <p className="text-xs text-slate-700 mt-2 leading-relaxed">
+                  Official 180-day written guarantee on OEM spare parts and labor. If the issue recurs, a senior specialist returns within 2 hours at zero cost.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-blue-100 flex items-center gap-2 text-xs font-bold text-blue-700">
+              <div className="mt-4 pt-3 border-t border-blue-200 flex items-center gap-2 text-xs font-bold text-blue-700">
                 <BadgeCheck className="w-4 h-4 text-blue-600 shrink-0" />
-                <span>Digital Warranty Pass on WhatsApp</span>
+                <span>Paperless Digital Warranty Pass</span>
               </div>
             </div>
           </StaggerItem>
 
-          {/* Card 2: Background-Checked Specialist Verification */}
+          {/* Card 2: Technician Expertise & Verification */}
           <StaggerItem>
-            <div className="rounded-2xl p-6 bg-gradient-to-b from-emerald-50/80 via-emerald-50/30 to-white border border-emerald-200 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow h-full">
+            <div className="rounded-2xl p-6 bg-gradient-to-br from-emerald-100 via-teal-50 to-green-50 border-2 border-emerald-400 shadow-md shadow-emerald-500/15 relative overflow-hidden flex flex-col justify-between hover:shadow-lg hover:shadow-emerald-500/25 transition-all h-full">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center mb-4 shadow-sm shadow-emerald-500/30">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center mb-4 shadow-md shadow-emerald-500/40">
                   <UserCheck className="w-5 h-5" />
                 </div>
                 <h3 className="font-heading text-lg font-bold text-slate-900">
-                  Verified Senior Specialists
+                  Certified Technician Expertise
                 </h3>
-                <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                  Aadhar & police background-checked technicians with 5+ years experience. Photo ID, vehicle number & pre-arrival phone call provided.
+                <p className="text-xs text-slate-700 mt-2 leading-relaxed">
+                  Aadhar & police background-checked specialists with 5+ years multi-brand inverter PCB, compressor, and drum repair mastery.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-emerald-100 flex items-center gap-2 text-xs font-bold text-emerald-800">
+              <div className="mt-4 pt-3 border-t border-emerald-200 flex items-center gap-2 text-xs font-bold text-emerald-800">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Uniformed & Photo ID Authenticated</span>
+                <span>92% First-Visit Fix with OEM Spares</span>
               </div>
             </div>
           </StaggerItem>
 
-          {/* Card 3: Pay-After-Service Guarantee & Fee Waiver */}
+          {/* Card 3: Transparent Repair Costs */}
           <StaggerItem>
-            <div className="rounded-2xl p-6 bg-gradient-to-b from-amber-50/80 via-amber-50/30 to-white border border-amber-200 shadow-xs relative overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow h-full">
+            <div className="rounded-2xl p-6 bg-gradient-to-br from-amber-100 via-yellow-50 to-orange-50 border-2 border-amber-400 shadow-md shadow-amber-500/15 relative overflow-hidden flex flex-col justify-between hover:shadow-lg hover:shadow-amber-500/25 transition-all h-full">
               <div>
-                <div className="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center mb-4 shadow-sm shadow-amber-500/30">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center mb-4 shadow-md shadow-amber-500/40">
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <h3 className="font-heading text-lg font-bold text-slate-900">
-                  Pay After Demonstration
+                  Upfront Repair Costs & Waiver
                 </h3>
-                <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                  Zero advance payment. Pay via UPI, Card or Cash only after a live demonstration test-run. ₹199 inspection fee is 100% waived on repair.
+                <p className="text-xs text-slate-700 mt-2 leading-relaxed">
+                  Flat rate card starting ₹249 with zero advance payment. ₹199 inspection fee is 100% waived off when you proceed with repair.
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-amber-100 flex items-center gap-2 text-xs font-bold text-amber-800">
+              <div className="mt-4 pt-3 border-t border-amber-200 flex items-center gap-2 text-xs font-bold text-amber-800">
                 <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />
-                <span>Inspection Fee ₹0 on Repair Approval</span>
+                <span>Pay After Live Demo via UPI / Card / Cash</span>
               </div>
             </div>
           </StaggerItem>
@@ -184,41 +184,41 @@ export const FaqSection: React.FC = () => {
               onClick={() => setActiveCategory('all')}
               className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 activeCategory === 'all'
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-slate-900 dark:bg-sky-500 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              All Questions ({filteredFaqs.length})
+              All Questions ({FAQ_DATA.length})
+            </button>
+            <button
+              onClick={() => setActiveCategory('costs')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                activeCategory === 'costs'
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              Repair Costs
+            </button>
+            <button
+              onClick={() => setActiveCategory('expertise')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                activeCategory === 'expertise'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              Technician Expertise
             </button>
             <button
               onClick={() => setActiveCategory('warranty')}
               className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
                 activeCategory === 'warranty'
                   ? 'bg-blue-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              Service Warranties
-            </button>
-            <button
-              onClick={() => setActiveCategory('verification')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                activeCategory === 'verification'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              Technician Safety
-            </button>
-            <button
-              onClick={() => setActiveCategory('payment')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                activeCategory === 'payment'
-                  ? 'bg-amber-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              Payment Policies
+              Warranty Terms
             </button>
           </div>
 
@@ -226,10 +226,10 @@ export const FaqSection: React.FC = () => {
           {filteredFaqs.length > 0 && (
             <button
               onClick={toggleAll}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-blue-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer shrink-0"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-200 hover:text-blue-600 dark:hover:text-sky-400 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-lg transition-colors cursor-pointer shrink-0"
               title={allOpen ? 'Collapse all visible FAQs' : 'Expand all visible FAQs'}
             >
-              <Layers className="w-3.5 h-3.5 text-blue-600" />
+              <Layers className="w-3.5 h-3.5 text-blue-600 dark:text-sky-400" />
               <span>{allOpen ? 'Collapse All' : 'Expand All'}</span>
             </button>
           )}
@@ -238,11 +238,11 @@ export const FaqSection: React.FC = () => {
         {/* Multi-Item FAQ Accordion List */}
         <div className="max-w-4xl mx-auto space-y-3.5">
           {filteredFaqs.length === 0 ? (
-            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-200">
-              <p className="text-slate-500 text-sm">No matching questions found for "{searchQuery}".</p>
+            <div className="text-center py-12 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+              <p className="text-slate-500 dark:text-slate-300 text-sm">No matching questions found for "{searchQuery}".</p>
               <button
                 onClick={() => { setSearchQuery(''); setActiveCategory('all'); }}
-                className="mt-3 text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                className="mt-3 text-xs font-bold text-blue-600 dark:text-sky-400 hover:underline cursor-pointer"
               >
                 Reset Search & Show All Questions
               </button>
@@ -255,56 +255,68 @@ export const FaqSection: React.FC = () => {
               return (
                 <div
                   key={faq.id}
-                  className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                  className={`rounded-2xl border-2 transition-all duration-200 overflow-hidden ${
                     isOpen 
                       ? isFailureQuestion
-                        ? 'border-amber-300 bg-amber-50/20 shadow-sm'
-                        : faq.category === 'verification'
-                          ? 'border-emerald-300 bg-emerald-50/20 shadow-sm'
-                          : faq.category === 'payment'
-                            ? 'border-amber-300 bg-amber-50/20 shadow-sm'
-                            : 'border-blue-300 bg-blue-50/20 shadow-sm' 
-                      : 'border-slate-200 bg-white hover:border-slate-300'
+                        ? 'border-amber-400 bg-gradient-to-r from-amber-50 via-yellow-50/80 to-white dark:from-amber-950/90 dark:via-slate-800/95 dark:to-slate-900 shadow-md shadow-amber-500/10'
+                        : faq.category === 'expertise'
+                          ? 'border-emerald-400 bg-gradient-to-r from-emerald-50 via-teal-50/80 to-white dark:from-emerald-950/90 dark:via-slate-800/95 dark:to-slate-900 shadow-md shadow-emerald-500/10'
+                          : faq.category === 'costs'
+                            ? 'border-amber-400 bg-gradient-to-r from-amber-50 via-yellow-50/80 to-white dark:from-amber-950/90 dark:via-slate-800/95 dark:to-slate-900 shadow-md shadow-amber-500/10'
+                            : 'border-blue-400 bg-gradient-to-r from-sky-50 via-blue-50/80 to-white dark:from-blue-950/90 dark:via-slate-800/95 dark:to-slate-900 shadow-md shadow-blue-500/10' 
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/90 hover:border-blue-300 dark:hover:border-sky-500'
                   }`}
                 >
                   <button
                     onClick={() => toggleItem(faq.id)}
                     aria-expanded={isOpen}
-                    className="w-full text-left py-4 px-5 sm:px-6 flex items-center justify-between gap-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className={`w-full text-left py-4 px-5 sm:px-6 flex items-center justify-between gap-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-colors ${
+                      faq.category === 'expertise'
+                        ? 'hover:bg-emerald-100/50 dark:hover:bg-emerald-900/30'
+                        : faq.category === 'costs' || isFailureQuestion
+                          ? 'hover:bg-amber-100/50 dark:hover:bg-amber-900/30'
+                          : 'hover:bg-blue-100/50 dark:hover:bg-blue-900/30'
+                    }`}
                   >
                     <div className="flex items-center gap-3">
                       {faq.category === 'warranty' && (
                         isFailureQuestion ? (
-                          <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                            <AlertTriangle className="w-4 h-4 text-amber-600" />
+                          <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <AlertTriangle className="w-4 h-4 text-white" />
                           </div>
                         ) : (
-                          <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-                            <ShieldCheck className="w-4 h-4 text-blue-600" />
+                          <div className="w-7 h-7 rounded-lg bg-blue-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <ShieldCheck className="w-4 h-4 text-white" />
                           </div>
                         )
                       )}
 
-                      {faq.category === 'verification' && (
-                        <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                          <UserCheck className="w-4 h-4 text-emerald-600" />
+                      {faq.category === 'expertise' && (
+                        <div className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                          <UserCheck className="w-4 h-4 text-white" />
                         </div>
                       )}
 
-                      {faq.category === 'payment' && (
-                        <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                          <CreditCard className="w-4 h-4 text-amber-600" />
+                      {faq.category === 'costs' && (
+                        <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                          <CreditCard className="w-4 h-4 text-white" />
                         </div>
                       )}
 
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
+                          <span className={`text-sm sm:text-base font-bold leading-snug ${
+                            faq.category === 'expertise'
+                              ? 'text-slate-900 dark:text-emerald-200'
+                              : faq.category === 'costs' || isFailureQuestion
+                                ? 'text-slate-900 dark:text-amber-200'
+                                : 'text-slate-900 dark:text-sky-200'
+                          }`}>
                             {faq.question}
                           </span>
                           {isFailureQuestion && (
-                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
-                              Failure Policy
+                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-400 text-slate-950 border border-amber-500">
+                              Warranty Protection
                             </span>
                           )}
                         </div>
@@ -312,19 +324,31 @@ export const FaqSection: React.FC = () => {
                     </div>
 
                     <ChevronDown
-                      className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-200 ${
-                        isOpen ? 'rotate-180 text-blue-600' : ''
+                      className={`w-5 h-5 shrink-0 transition-transform duration-200 ${
+                        isOpen
+                          ? faq.category === 'expertise'
+                            ? 'rotate-180 text-emerald-600 dark:text-emerald-400'
+                            : faq.category === 'costs' || isFailureQuestion
+                              ? 'rotate-180 text-amber-600 dark:text-amber-400'
+                              : 'rotate-180 text-blue-600 dark:text-sky-400'
+                          : 'text-slate-500 dark:text-slate-300'
                       }`}
                     />
                   </button>
 
                   {isOpen && (
-                    <div className="px-5 sm:px-6 pb-5 pt-2 text-xs sm:text-sm text-slate-700 leading-relaxed border-t border-slate-100">
-                      <p>{faq.answer}</p>
+                    <div className={`px-5 sm:px-6 pb-5 pt-3 text-xs sm:text-sm leading-relaxed border-t ${
+                      faq.category === 'expertise'
+                        ? 'border-emerald-200 dark:border-emerald-800/70 bg-white/80 dark:bg-slate-900/50 text-slate-800 dark:text-emerald-50'
+                        : faq.category === 'costs' || isFailureQuestion
+                          ? 'border-amber-200 dark:border-amber-800/70 bg-white/80 dark:bg-slate-900/50 text-slate-800 dark:text-amber-50'
+                          : 'border-blue-200 dark:border-blue-800/70 bg-white/80 dark:bg-slate-900/50 text-slate-800 dark:text-sky-50'
+                    }`}>
+                      <p className="text-slate-800 dark:text-slate-100">{faq.answer}</p>
                       
                       {faq.highlight && (
-                        <div className="mt-3.5 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-900 shadow-2xs">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <div className="mt-3.5 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-xs font-semibold text-slate-900 dark:text-emerald-300 shadow-2xs">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                           <span>Guaranteed Policy: {faq.highlight}</span>
                         </div>
                       )}
