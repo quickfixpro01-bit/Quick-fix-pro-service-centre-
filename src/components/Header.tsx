@@ -52,8 +52,8 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-xs transition-colors duration-200">
-      {/* Top Notification Bar */}
-      <div className="bg-slate-900 dark:bg-slate-950 text-slate-100 text-xs py-2 px-4 border-b border-slate-800">
+      {/* Top Notification Bar (Hidden on mobile phone screens) */}
+      <div className="hidden sm:block bg-slate-900 dark:bg-slate-950 text-slate-100 text-xs py-2 px-4 border-b border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="inline-flex items-center gap-1.5 font-medium text-emerald-400">
@@ -169,7 +169,7 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
               <span className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 font-medium tracking-normal mt-0.5 block break-words sm:whitespace-nowrap">
-                Bangalore's Multi-Brand Appliance Repair • 8095996638
+                Bangalore's Multi-Brand Appliance Repair<span className="hidden sm:inline"> • 8095996638</span>
               </span>
             </div>
           </button>
@@ -398,42 +398,50 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => handleNavClick('about')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 ${
-                currentPage === 'about' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-800 hover:bg-slate-50'
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors ${
+                currentPage === 'about'
+                  ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1175ff] dark:text-sky-400 font-bold'
+                  : 'text-[#1175ff] dark:text-sky-400 hover:bg-blue-50 dark:hover:bg-slate-800'
               }`}
             >
-              <Building2 className="w-4 h-4 text-blue-600" />
+              <Building2 className="w-4 h-4 text-[#1175ff] dark:text-sky-400" />
               <span>About Us</span>
             </button>
 
             <button
               onClick={() => handleNavClick('services')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 ${
-                currentPage === 'services' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-800 hover:bg-slate-50'
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors ${
+                currentPage === 'services'
+                  ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1175ff] dark:text-sky-400 font-bold'
+                  : 'text-[#1175ff] dark:text-sky-400 hover:bg-blue-50 dark:hover:bg-slate-800'
               }`}
             >
-              <Wrench className="w-4 h-4 text-blue-600" />
+              <Wrench className="w-4 h-4 text-[#1175ff] dark:text-sky-400" />
               <span>Services & Pricing</span>
             </button>
 
             <button
               onClick={() => handleNavClick('contact')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 ${
-                currentPage === 'contact' ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-800 hover:bg-slate-50'
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors ${
+                currentPage === 'contact'
+                  ? 'bg-blue-50 dark:bg-blue-950/60 text-[#1175ff] dark:text-sky-400 font-bold'
+                  : 'text-[#1175ff] dark:text-sky-400 hover:bg-blue-50 dark:hover:bg-slate-800'
               }`}
             >
-              <Headphones className="w-4 h-4 text-blue-600" />
+              <Headphones className="w-4 h-4 text-[#1175ff] dark:text-sky-400" />
               <span>Contact Us</span>
             </button>
 
             <button
               onClick={() => handleNavClick('admin')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 ${
-                currentPage === 'admin' ? 'bg-amber-50 text-amber-800 font-bold' : 'text-slate-800 hover:bg-amber-50/50'
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors ${
+                currentPage === 'admin'
+                  ? 'bg-amber-50 dark:bg-amber-950/40 font-bold'
+                  : 'hover:bg-blue-50 dark:hover:bg-slate-800'
               }`}
             >
-              <ShieldCheck className="w-4 h-4 text-amber-600" />
-              <span>Admin Operations Portal</span>
+              <ShieldCheck className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+              <span className="border-[#151685] text-[#1175ff]">Admin Operations Portal</span>
             </button>
 
             <div className="py-1 border-t border-slate-100 my-1"></div>
