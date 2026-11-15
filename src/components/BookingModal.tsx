@@ -27,7 +27,7 @@ import {
 import { APPLIANCE_SERVICES, BRANDS, BANGALORE_AREAS, BookingRecord, BangaloreHub } from '../data/servicesData';
 import { TIERED_PACKAGES } from '../data/packagesData';
 import { useAuth } from '../context/AuthContext';
-import { createBookingInFirestore } from '../lib/bookingsService';
+import { createBooking } from '../lib/bookingsService';
 import { lookupLocationWithGoogleMaps } from '../lib/mapsService';
 import { SmartSlotPicker } from './SmartSlotPicker';
 import { SmartSlotItem } from '../lib/smartSchedulingService';
@@ -401,7 +401,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     try {
       // Allow booking without any phone OTP requirement
       const effectiveUserId = currentUser?.uid || `guest_${cleanDigits}`;
-      await createBookingInFirestore(newBooking, effectiveUserId);
+      await createBooking(newBooking, effectiveUserId);
 
       // If user is logged in, optionally update their address preference
       if (currentUser) {
@@ -425,8 +425,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
         console.warn('Push notification initialization warning:', pushErr);
       }
     } catch (err: any) {
-      console.error('Failed to save booking to Firestore:', err);
-      setSaveError('Could not sync booking to Firestore. Please check your connection and retry.');
+      console.error('Failed to save booking:', err);
+      setSaveError('Could not save booking. Please try again.');
     } finally {
       setBookingInProgress(false);
     }

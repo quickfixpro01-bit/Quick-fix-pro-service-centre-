@@ -308,7 +308,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   onClick={signOut}
                   className="p-2 text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors cursor-pointer"
-                  title="Sign out of Firebase"
+                  title="Sign out"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                 </button>

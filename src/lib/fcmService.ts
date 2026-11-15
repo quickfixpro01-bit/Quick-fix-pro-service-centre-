@@ -1,6 +1,3 @@
-import { doc, updateDoc, arrayUnion, setDoc } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from './firebase';
-
 export interface PushAlertPayload {
   id: string;
   bookingId: string;
@@ -11,6 +8,8 @@ export interface PushAlertPayload {
   timestamp: string;
   icon?: string;
 }
+
+const PUSH_PREFS_KEY = 'quick_fix_pro_push_prefs';
 
 // In-memory listener subscribers for foreground toast alerts
 type NotificationListener = (payload: PushAlertPayload) => void;
@@ -41,7 +40,7 @@ export function isPushSupported(): boolean {
 }
 
 /**
- * Requests browser notification permission and retrieves device registration token.
+ * Requests browser notification permission and retrieves local device token.
  */
 export async function requestPushPermissionAndToken(userId?: string): Promise<{
   granted: boolean;
@@ -59,20 +58,21 @@ export async function requestPushPermissionAndToken(userId?: string): Promise<{
     const permission = await Notification.requestPermission();
 
     if (permission === 'granted') {
-      // Generate a unique device push token
-      const deviceToken = `fcm_token_${Math.random().toString(36).substring(2, 10)}_${Date.now()}`;
+      const deviceToken = `web_push_${Math.random().toString(36).substring(2, 10)}_${Date.now()}`;
 
-      // Save token to Firestore if userId provided
-      if (userId && db) {
+      if (userId && typeof window !== 'undefined') {
         try {
-          const userRef = doc(db, 'userProfiles', userId);
-          await setDoc(userRef, {
-            fcmTokens: arrayUnion(deviceToken),
-            notificationsEnabled: true,
-            lastNotificationPermissionAt: new Date().toISOString()
-          }, { merge: true });
+          localStorage.setItem(
+            PUSH_PREFS_KEY,
+            JSON.stringify({
+              userId,
+              deviceToken,
+              notificationsEnabled: true,
+              lastNotificationPermissionAt: new Date().toISOString()
+            })
+          );
         } catch (err) {
-          console.warn('Could not save FCM token to Firestore:', err);
+          console.warn('Could not save notification preference:', err);
         }
       }
 

@@ -42,9 +42,9 @@ import {
 } from '../data/servicesData';
 import { 
   subscribeToAllBookings, 
-  createBookingInFirestore, 
-  updateBookingInFirestore, 
-  deleteBookingFromFirestore 
+  createBooking, 
+  updateBooking, 
+  deleteBooking 
 } from '../lib/bookingsService';
 
 const ADMIN_PASSWORD = '786786';
@@ -209,7 +209,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
 
   // Quick Status change from Table Row
   const handleQuickStatusChange = async (bookingId: string, status: BookingRecord['status']) => {
-    await updateBookingInFirestore(bookingId, { status });
+    await updateBooking(bookingId, { status });
   };
 
   // Open Edit Modal
@@ -245,7 +245,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
       }
     };
 
-    await updateBookingInFirestore(editingBooking.bookingId, updates);
+    await updateBooking(editingBooking.bookingId, updates);
     setIsSavingEdit(false);
     setEditingBooking(null);
   };
@@ -255,7 +255,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
     if (confirm(`Are you sure you want to permanently delete booking ${bookingId}?`)) {
       const cleanId = bookingId.trim();
       setBookings(prev => prev.filter(b => b.bookingId.trim() !== cleanId));
-      await deleteBookingFromFirestore(cleanId);
+      await deleteBooking(cleanId);
     }
   };
 
@@ -301,7 +301,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
       createdAt: new Date().toISOString()
     };
 
-    await createBookingInFirestore(newBooking, 'admin_portal');
+    await createBooking(newBooking, 'admin_portal');
     setIsSubmittingNew(false);
     setIsCreateModalOpen(false);
 
@@ -570,7 +570,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
                 <p className="text-xs text-slate-400 flex items-center gap-1.5">
                   <span>Logged in as: <strong className="text-slate-200">Administrator</strong></span>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  <span className="text-[11px] text-emerald-400">Firestore Connected</span>
+                  <span className="text-[11px] text-emerald-400">Live Portal Active</span>
                 </p>
               </div>
             </div>
@@ -769,7 +769,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
           {isLoadingBookings ? (
             <div className="py-16 text-center text-slate-500 space-y-2">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto text-blue-600" />
-              <p className="text-xs">Loading bookings from Firestore...</p>
+              <p className="text-xs">Loading bookings...</p>
             </div>
           ) : filteredBookings.length === 0 ? (
             <div className="py-16 text-center text-slate-500 space-y-3">
@@ -956,7 +956,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
                 </div>
                 <div>
                   <h3 className="font-heading font-bold text-base text-white">Create New Doorstep Booking</h3>
-                  <p className="text-[11px] text-amber-300">Admin Dispatch • Direct Firestore Registration</p>
+                  <p className="text-[11px] text-amber-300">Admin Dispatch • Direct Booking Registration</p>
                 </div>
               </div>
               <button
@@ -1329,7 +1329,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToCustomer }) =>
                     disabled={isSavingEdit}
                     className="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white transition-colors shadow-sm cursor-pointer disabled:bg-slate-300"
                   >
-                    {isSavingEdit ? 'Saving Updates...' : 'Save & Sync Firestore'}
+                    {isSavingEdit ? 'Saving Updates...' : 'Save Updates'}
                   </button>
                 </div>
               </div>

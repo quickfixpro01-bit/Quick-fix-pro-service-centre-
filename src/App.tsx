@@ -83,7 +83,7 @@ function AppContent() {
     price: number;
   } | undefined>();
 
-  // Tracker state & real-time Firestore sync
+  // Tracker state & real-time local booking sync
   const [activeTrackingId, setActiveTrackingId] = useState<string | undefined>();
   const [userBookings, setUserBookings] = useState<BookingRecord[]>([]);
 
@@ -99,7 +99,7 @@ function AppContent() {
     }
   }, []);
 
-  // Real-time synchronization of bookings from Firebase Firestore
+  // Real-time synchronization of bookings from local store
   useEffect(() => {
     if (currentUser?.uid) {
       const unsubscribe = subscribeToUserBookings(currentUser.uid, (remoteBookings) => {

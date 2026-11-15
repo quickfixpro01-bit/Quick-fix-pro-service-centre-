@@ -15,7 +15,7 @@ import {
   Wrench
 } from 'lucide-react';
 import { SAMPLE_TRACKING_BOOKINGS, BookingRecord } from '../data/servicesData';
-import { getBookingByIdFromFirestore, subscribeToBookingById, getLocalBookings } from '../lib/bookingsService';
+import { getBookingById, subscribeToBookingById, getLocalBookings } from '../lib/bookingsService';
 import { useAuth } from '../context/AuthContext';
 
 interface TrackerModalProps {
@@ -75,7 +75,7 @@ export const TrackerModal: React.FC<TrackerModalProps> = ({
       if (found) {
         setActiveBooking(found);
       } else {
-        handleLookupFirestore(initialBookingId);
+        handleLookupBooking(initialBookingId);
       }
     } else {
       if (customBookings.length > 0) {
@@ -94,15 +94,15 @@ export const TrackerModal: React.FC<TrackerModalProps> = ({
     }
   }, [isOpen, initialBookingId, customBookings]);
 
-  const handleLookupFirestore = async (idToSearch: string) => {
+  const handleLookupBooking = async (idToSearch: string) => {
     setIsSearching(true);
     try {
-      const remoteBooking = await getBookingByIdFromFirestore(idToSearch);
+      const remoteBooking = await getBookingById(idToSearch);
       if (remoteBooking) {
         setActiveBooking(remoteBooking);
       }
     } catch (e) {
-      console.warn('Firestore lookup error:', e);
+      console.warn('Booking lookup error:', e);
     } finally {
       setIsSearching(false);
     }
@@ -151,17 +151,17 @@ export const TrackerModal: React.FC<TrackerModalProps> = ({
       return;
     }
 
-    // Otherwise check Firestore in real-time
+    // Otherwise check saved local bookings
     setIsSearching(true);
     try {
-      const fromDb = await getBookingByIdFromFirestore(query);
+      const fromDb = await getBookingById(query);
       if (fromDb) {
         setActiveBooking(fromDb);
       } else {
         alert(`No active booking found matching "${query}". Try searching by booking reference (e.g. QFP-8492) or contact number.`);
       }
     } catch (err) {
-      alert(`Could not retrieve booking "${query}" from Firestore.`);
+      alert(`Could not retrieve booking "${query}".`);
     } finally {
       setIsSearching(false);
     }
