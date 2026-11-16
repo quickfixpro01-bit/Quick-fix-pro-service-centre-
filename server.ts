@@ -10,7 +10,36 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = Number(process.env.PORT) || 3000;
+
+function getCliArg(flag: string): string | undefined {
+  const index = process.argv.indexOf(flag);
+  if (index !== -1 && index + 1 < process.argv.length) {
+    return process.argv[index + 1];
+  }
+  const prefix = `${flag}=`;
+  const match = process.argv.find((arg) => arg.startsWith(prefix));
+  return match ? match.slice(prefix.length) : undefined;
+}
+
+const isProduction =
+  process.env.NODE_ENV === 'production' ||
+  process.env.npm_lifecycle_event === 'start';
+
+const cliPort = Number(getCliArg('--port'));
+const envPort = Number(process.env.PORT);
+const nginxPort = Number(process.env.NGINX_PORT);
+const defaultAppPort = Number(process.env.DEFAULT_APP_PORT) || 3000;
+
+const port =
+  Number.isFinite(cliPort) && cliPort > 0
+    ? cliPort
+    : !isProduction && nginxPort && envPort === nginxPort
+      ? defaultAppPort
+      : Number.isFinite(envPort) && envPort > 0
+        ? envPort
+        : defaultAppPort;
+
+const host = getCliArg('--host') || '0.0.0.0';
 
 app.use(express.json());
 
@@ -101,10 +130,6 @@ Your role:
 
 // Setup Vite middleware in dev mode or static files in production
 async function startServer() {
-  const isProduction =
-    process.env.NODE_ENV === 'production' ||
-    process.env.npm_lifecycle_event === 'start';
-
   if (!isProduction) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
@@ -120,9 +145,12 @@ async function startServer() {
     });
   }
 
-  app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+  app.listen(port, host, () => {
+    console.log(`Server running at http://${host}:${port}`);
   });
 }
 
-startServer();
+startServer().catch((err) => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
+});
